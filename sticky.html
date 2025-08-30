@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sticky Notes - Black & White Theme</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  #toolbar {
+    background: #111;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #addNoteBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  #addNoteBtn:hover {
+    background: #ddd;
+  }
+
+  .note {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px #222;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .note textarea {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    color: #000;
+    font-size: 16px;
+    resize: none;
+    outline: none;
+  }
+
+  .note-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 5px;
+  }
+
+  .delete-btn {
+    background: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-weight: bold;
+    border-radius: 4px;
+  }
+  .delete-btn:hover {
+    background: #333;
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <button id="addNoteBtn">Add Note</button>
+</div>
+
+<script>
+  let notes = [];
+  let zIndexCounter = 1;
+
+  document.getElementById('addNoteBtn').addEventListener('click', createNote);
+
+  function createNote() {
+    const note = document.createElement('div');
+    note.classList.add('note');
+    note.style.top = Math.random() * (window.innerHeight - 220) + 'px';
+    note.style.left = Math.random() * (window.innerWidth - 220) + 'px';
+    note.style.zIndex = ++zIndexCounter;
+
+    const header = document.createElement('div');
+    header.classList.add('note-header');
+
+    const delBtn = document.createElement('button');
+    delBtn.textContent = 'X';
+    delBtn.classList.add('delete-btn');
+    delBtn.addEventListener('click', () => {
+      note.remove();
+    });
+
+    header.appendChild(delBtn);
+    note.appendChild(header);
+
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = 'Write something...';
+    note.appendChild(textarea);
+
+    // Drag functionality
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    header.style.cursor = 'move';
+
+    header.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const rect = note.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      note.style.zIndex = ++zIndexCounter;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      let x = e.clientX - offsetX;
+      let y = e.clientY - offsetY;
+
+      // Keep note inside viewport
+      x = Math.max(0, Math.min(window.innerWidth - note.offsetWidth, x));
+      y = Math.max(0, Math.min(window.innerHeight - note.offsetHeight, y));
+
+      note.style.left = x + 'px';
+      note.style.top = y + 'px';
+    });
+
+    document.body.appendChild(note);
+  }
+</script>
+
+</body>
+</html>
